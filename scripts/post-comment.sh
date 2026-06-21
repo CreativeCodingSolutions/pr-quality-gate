@@ -9,44 +9,70 @@ fi
 
 QUALITY_PASS="${QUALITY_PASS:-false}"
 REPORT="${REPORT:-{}}"
+TOOL_URL="https://creativecodingsolutions.github.io/pr-quality-analyzer"
+PR_URL="https://github.com/$REPO/pull/$PR_NUMBER"
+ENCODED_PR=$(echo "$PR_URL" | jq -sRr @uri))
+
+build_table() {
+  echo "$REPORT" | jq -r '
+    to_entries
+    | map(select(.key != "summary"))
+    | sort_by(.key)
+    | map(
+        .key as $k |
+        (.value.pass // false) as $p |
+        (.value.skipped // false) as $s |
+        ($k | split("_")[:-1] | join(" ")) as $label |
+        if $s then "| " + $label + " | ⏭️ Skipped |"
+        elif $p then "| " + $label + " | ✅ Pass |"
+        else "| " + $label + " | ❌ Fail |"
+        end
+      )
+    | .[]
+  '
+}
 
 if [ "$QUALITY_PASS" = "true" ]; then
+  TABLE=$(build_table)
   BODY="## ✅ PR Quality Gate — All Checks Passed
 
 | Check | Status |
 |-------|--------|
-
-$(echo "$REPORT" | jq -r '
-  ["description_check", "labels_check", "linked_issue_check"] 
-  | map(select(.[0] as $key | .[1] | has("skipped") | not))
-  | map("<tr><td>\(.[0] | split("_") | map(ascii_upcase[:1] + .[1:]) | join(" "))</td><td>✅ Pass</td></tr>")
-  | join("\\n")
-')
+$TABLE
 
 ---
+
+**📊 [Score this PR on PR Quality Analyzer](https://creativecodingsolutions.github.io/pr-quality-analyzer/?pr=$ENCODED_PR)** — Get an A-F score with detailed metrics.
 
 *Powered by [PR Quality Gate](https://github.com/CreativeCodingSolutions/pr-quality-gate)*
 "
 else
   ISSUES=$(echo "$REPORT" | jq -r '
-    to_entries 
+    to_entries
     | map(select(.value.pass == false))
-    | map("  - ❌ **\(.key | split("_")[0:] | join(" "))** — \(.value.message)")
+    | map("  - ❌ **\(.key | split("_")[:-1] | join(" "))** — \(.value.message)")
     | join("\\n")
   ')
+  TABLE=$(build_table)
 
   BODY="## ❌ PR Quality Gate — Issues Found
+
+| Check | Status |
+|-------|--------|
+$TABLE
 
 $ISSUES
 
 ---
 
-Please fix these issues to pass the quality gate. 
+Please fix these issues to pass the quality gate.
 
 Need help writing PR descriptions? Try to:
 - Explain **what** this change does
 - Explain **why** this change is needed
 - Link to any related issues or discussions
+
+**📊 [Score this PR on PR Quality Analyzer](https://creativecodingsolutions.github.io/pr-quality-analyzer/?pr=$ENCODED_PR)** — Get an A-F score with detailed metrics.
 
 *Powered by [PR Quality Gate](https://github.com/CreativeCodingSolutions/pr-quality-gate)*
 "

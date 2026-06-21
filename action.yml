@@ -1,5 +1,5 @@
 name: "PR Quality Gate"
-description: "Enforce PR quality standards: description length, labels, and linked issues. Zero config, one-minute setup."
+description: "Enforce PR quality standards: description length, labels, and linked issues. Zero config, one-minute setup. Includes PR Quality Analyzer integration for detailed A-F scoring."
 author: "CreativeCodingSolutions"
 branding:
   icon: "check-square"

@@ -2,11 +2,9 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/CreativeCodingSolutions/pr-quality-gate?style=flat-square)](https://github.com/CreativeCodingSolutions/pr-quality-gate)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![GitHub Actions](https://img.shields.io/badge/GitHub-Actions-2088FF?style=flat-square&logo=github-actions)](https://github.com/CreativeCodingSolutions/pr-quality-gate/actions)
+[![PR Quality Analyzer](https://img.shields.io/badge/PR%20Quality%20Analyzer-Score%20Any%20PR%20(A--F)-58a6ff?style=flat-square)](https://creativecodingsolutions.github.io/pr-quality-analyzer/)
 
-Enforce PR quality standards: description length, labels, and linked issues. Zero config, one-minute setup.
-
-Works alongside [DocuCraft](https://github.com/CreativeCodingSolutions/docucraft) — DocuCraft generates great descriptions, PR Quality Gate ensures they stay that way.
+Enforce PR quality standards: description length, labels, and linked issues. Zero config, one-minute setup. Every PR comment includes a link to the [PR Quality Analyzer](https://creativecodingsolutions.github.io/pr-quality-analyzer/) for a detailed A-F score.
 
 ## Usage
 
