@@ -11,7 +11,7 @@ QUALITY_PASS="${QUALITY_PASS:-false}"
 REPORT="${REPORT:-{}}"
 TOOL_URL="https://creativecodingsolutions.github.io/pr-quality-analyzer"
 PR_URL="https://github.com/$REPO/pull/$PR_NUMBER"
-ENCODED_PR=$(echo "$PR_URL" | jq -sRr @uri))
+ENCODED_PR=$(echo "$PR_URL" | jq -sRr @uri)
 
 build_table() {
   echo "$REPORT" | jq -r '
