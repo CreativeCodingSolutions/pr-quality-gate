@@ -1,0 +1,81 @@
+name: "PR Quality Gate"
+description: "Enforce PR quality standards: description length, labels, and linked issues. Zero config, one-minute setup."
+author: "CreativeCodingSolutions"
+branding:
+  icon: "check-square"
+  color: "green"
+
+inputs:
+  github-token:
+    description: "GitHub token for API access"
+    required: false
+    default: ${{ github.token }}
+  min-description-length:
+    description: "Minimum number of characters for PR description"
+    required: false
+    default: "50"
+  require-labels:
+    description: "Require PR to have at least one label"
+    required: false
+    default: "false"
+  require-linked-issue:
+    description: "Require PR to be linked to an issue"
+    required: false
+    default: "false"
+  fail-on-warning:
+    description: "Fail the CI check if quality standards are not met"
+    required: false
+    default: "true"
+  mode:
+    description: "Fail mode or warn mode (fail | warn)"
+    required: false
+    default: "fail"
+  comment-on-pr:
+    description: "Post a comment on the PR with the quality report"
+    required: false
+    default: "true"
+  custom-message:
+    description: "Custom message to include in PR comment"
+    required: false
+    default: ""
+
+outputs:
+  quality-pass:
+    description: "Whether all quality checks passed (true/false)"
+  description-length:
+    description: "Length of the PR description in characters"
+  has-labels:
+    description: "Whether the PR has labels (true/false)"
+  has-linked-issue:
+    description: "Whether the PR has a linked issue (true/false)"
+  report:
+    description: "Full quality report as JSON"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Check PR quality"
+      id: quality-check
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+        MIN_DESC_LENGTH: ${{ inputs.min-description-length }}
+        REQUIRE_LABELS: ${{ inputs.require-labels }}
+        REQUIRE_LINKED_ISSUE: ${{ inputs.require-linked-issue }}
+        FAIL_MODE: ${{ inputs.fail-on-warning }}
+        MODE: ${{ inputs.mode }}
+      run: ${{ github.action_path }}/scripts/check-pr.sh
+
+    - name: "Post PR comment"
+      if: ${{ inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+        QUALITY_PASS: ${{ steps.quality-check.outputs.quality-pass }}
+        REPORT: ${{ steps.quality-check.outputs.report }}
+        CUSTOM_MESSAGE: ${{ inputs.custom-message }}
+      run: ${{ github.action_path }}/scripts/post-comment.sh

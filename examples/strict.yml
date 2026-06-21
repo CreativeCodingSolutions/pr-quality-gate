@@ -1,0 +1,14 @@
+name: PR Quality Gate (Strict)
+on: pull_request
+permissions: { contents: read, pull-requests: write, issues: read }
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: CreativeCodingSolutions/pr-quality-gate@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          min-description-length: "150"
+          require-labels: "true"
+          require-linked-issue: "true"
+          fail-on-warning: "true"
